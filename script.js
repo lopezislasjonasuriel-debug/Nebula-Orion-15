@@ -398,14 +398,18 @@ function showSection(sectionId) {
   }
 
   // Inicialización del juego en el contenedor #phaser-game
+  // Inicialización del juego con tamaño fijo grande para carga instantánea
   new Phaser.Game({
     type: Phaser.AUTO,
     parent: 'phaser-game',
-    width: ANCHO,
-    height: ALTO,
+    width: 800,
+    height: 550, // Aumenta un poco la altura base
     backgroundColor: '#05070f',
     physics: { default: 'arcade', arcade: { debug: false } },
-    scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH },
+    scale: {
+      mode: Phaser.Scale.NONE, // Evita los recálculos lentos
+      autoCenter: Phaser.Scale.CENTER_BOTH
+    },
     input: { activePointers: 4 },
     scene: [EscenaJuego]
   });

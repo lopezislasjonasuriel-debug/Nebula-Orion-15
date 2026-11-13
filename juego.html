@@ -23,12 +23,12 @@
   <main class="content-container">
     <div class="card">
       <h2>🎮 Misión de Rescate Espacial</h2>
-      <p>Explora el sistema solar, selecciona un destino y escanea las misiones históricas de la NASA.</p>
+      <p>Utiliza las flechas del teclado, WASD o los controles en pantalla para escanear las misiones espaciales.</p>
       
-      <!-- Contenedor del juego -->
+      <!-- Contenedor del juego con soporte táctil y de menú -->
       <div id="sg-root" tabindex="0" aria-label="Videojuego Misión Espacial">
         <div id="sg-canvas"></div>
-        <button id="sg-menu" type="button">Menú Estelar</button>
+        <button id="sg-menu" type="button">Menú</button>
         <div id="sg-pad">
           <button type="button" data-dir="up">▲</button>
           <button type="button" data-dir="left">◀</button>
@@ -37,7 +37,7 @@
         </div>
         <button id="sg-scan" type="button">Escanear</button>
       </div>
-      <p style="text-align:center; font-size:13px; color:#9ca3af; margin-top:10px;">Usa las flechas o <strong>W, A, S, D</strong> para moverte, ESPACIO para escanear.</p>
+      <p style="text-align:center; font-size:13px; color:#9ca3af; margin-top:10px;">Haz clic en el juego. Flechas para moverte, ESPACIO para escanear.</p>
     </div>
   </main>
 
@@ -46,7 +46,7 @@
     <p>Creado por el equipo: <span>Tu Nombre / Nombre de tu Equipo</span></p>
   </footer>
 
-  <!-- LÓGICA DE PHASER Y MENÚ DE SISTEMA SOLAR INTERACTIVO -->
+  <!-- LÓGICA DE PHASER Y MENÚ ORBITAL -->
   <script>
     (function (SG) {
       'use strict';
@@ -61,7 +61,7 @@
       SG.Controls = { left: false, right: false, up: false, down: false, scan: false };
       
       SG.DEST = {
-        moon: { name: 'La Luna (Órbita Terrestre)', vehicle: 'rover', start: [200, 1000], desc: 'Satélite natural de la Tierra. Aquí se desarrollaron las misiones Apolo y el despliegue de los primeros rovers y sismógrafos lunares.', missions: [
+        moon: { name: 'Luna', vehicle: 'rover', start: [200, 1000], missions: [
           { id: 'apollo11', name: 'Apollo 11', x: 520, y: 850, pts: 100, fact: 'En 1969 Neil Armstrong y Buzz Aldrin fueron los primeros humanos en pisar la Luna.' },
           { id: 'apollo12', name: 'Apollo 12', x: 1100, y: 1030, pts: 100, fact: 'Apollo 12 (1969) aterrizó a unos 180 m de Surveyor 3 y recuperó piezas de la sonda.' },
           { id: 'apollo15', name: 'Apollo 15', x: 1500, y: 520, pts: 100, fact: 'Apollo 15 (1971) fue la primera misión en conducir el Rover Lunar.' },
@@ -69,7 +69,7 @@
         ], extras: [
           { id: 'astro1', name: 'Astronauta', tex: 'astro', wander: true, x: 300, y: 520, pts: 25, fact: 'Solo 12 personas han caminado sobre la Luna, todas entre 1969 y 1972.' }
         ] },
-        mars: { name: 'Marte (Planeta Rojo)', vehicle: 'rover', start: [150, 1050], desc: 'El cuarto planeta del sistema solar. Objetivo principal de la exploración robótica en busca de rastros de antiguos lagos y habitabilidad.', missions: [
+        mars: { name: 'Marte', vehicle: 'rover', start: [150, 1050], missions: [
           { id: 'pathfinder', name: 'Mars Pathfinder', x: 450, y: 880, pts: 120, fact: 'Pathfinder aterrizó en 1997 y llevó a Sojourner, el primer rover que rodó en Marte.' },
           { id: 'spiropp', name: 'Spirit y Opportunity', x: 1050, y: 1050, pts: 120, fact: 'Los rovers gemelos llegaron en 2004; Opportunity funcionó casi 15 años.' },
           { id: 'dawn', name: 'Dawn Mission', x: 1500, y: 700, pts: 120, fact: 'Dawn usó la gravedad de Marte en 2009 y fue la primera sonda en orbitar Vesta y Ceres.' },
@@ -78,7 +78,7 @@
           { id: 'alien1', name: 'Alien curioso', tex: 'alien', follow: true, x: 700, y: 620, pts: 25, fact: 'Los marcianos de ficción nacieron en La guerra de los mundos (1898) de H. G. Wells.' },
           { id: 'alien2', name: 'Alien curioso', tex: 'alien', follow: true, x: 1250, y: 900, pts: 25, fact: 'En 1938 una versión radiofónica de esa novela asustó a miles de oyentes.' }
         ] },
-        deep: { name: 'Espacio Profundo', vehicle: 'rocket', start: [1600, 600], desc: 'Regiones exteriores del sistema solar y más allá. Sondas interestelares que llevan registros grabados de la humanidad.', missions: [
+        deep: { name: 'Espacio Profundo', vehicle: 'rocket', start: [1600, 600], missions: [
           { id: 'pioneer10', name: 'Pioneer 10', x: 1100, y: 200, pts: 200, fact: 'Pioneer 10 (1972) cruzó el cinturón de asteroides y sobrevoló Júpiter en 1973.' },
           { id: 'k2', name: 'Kepler K2', x: 500, y: 950, pts: 200, fact: 'Kepler K2 (2014) siguió cazando exoplanetas tras fallar dos de sus ruedas de reacción.' }
         ], extras: [] }
@@ -106,26 +106,57 @@
         g.fillStyle(0xffffff, 0.6).fillEllipse(x + r * 0.1, y - r * 0.45, r * 0.85, r * 0.2).fillEllipse(x - r * 0.2, y + r * 0.15, r * 0.6, r * 0.15);
         g.lineStyle(2, 0x38bdf8, 0.8).strokeCircle(x, y, r);
       }
-
-      function moonPlanet(g, x, y, r) {
-        g.fillStyle(0x7d8086, 0.15).fillCircle(x, y, r + 10);
-        g.fillStyle(0x8f9298).fillCircle(x, y, r);
-        g.fillStyle(0x6a6d73).fillCircle(x - r*0.3, y - r*0.2, r*0.3).fillCircle(x + r*0.4, y + r*0.3, r*0.25);
-        g.lineStyle(2, 0xb2b5ba, 0.7).strokeCircle(x, y, r);
+      
+      function menuButton(s, x, y, label, subtext, iconSymbol, cb) {
+        const container = s.add.container(x, y);
+        const bg = s.add.rectangle(0, 0, 260, 64, 0x0f172a, 0.85).setStrokeStyle(2, 0x00f0ff, 0.6).setInteractive({ useHandCursor: true });
+        bg.isButton = true;
+        
+        const indicator = s.add.rectangle(-122, 0, 4, 40, 0x00f0ff, 0.8);
+        const icon = s.add.text(-100, 0, iconSymbol, { fontSize: '24px' }).setOrigin(0.5);
+        const tLabel = s.add.text(-70, -11, label, { fontFamily: FONT, fontSize: '16px', color: '#fff', fontStyle: 'bold' });
+        const tSub = s.add.text(-70, +9, subtext, { fontFamily: FONT, fontSize: '11px', color: '#94a3b8' });
+        
+        container.add([bg, indicator, icon, tLabel, tSub]);
+        
+        bg.on('pointerover', () => {
+          s.tweens.add({ targets: container, scale: 1.05, duration: 150, ease: 'Back.easeOut' });
+          bg.setFillStyle(0x1e293b, 0.95);
+          bg.setStrokeStyle(2, 0x7dff8a, 1);
+          indicator.setFillStyle(0x7dff8a, 1);
+        });
+        bg.on('pointerout', () => {
+          s.tweens.add({ targets: container, scale: 1, duration: 150, ease: 'Power1' });
+          bg.setFillStyle(0x0f172a, 0.85);
+          bg.setStrokeStyle(2, 0x00f0ff, 0.6);
+          indicator.setFillStyle(0x00f0ff, 0.8);
+        });
+        bg.on('pointerdown', () => {
+          s.tweens.add({ targets: container, scale: 0.95, duration: 80, yoyo: true });
+        });
+        bg.on('pointerup', cb);
+        return container;
       }
 
-      function marsPlanet(g, x, y, r) {
-        g.fillStyle(0xf97316, 0.15).fillCircle(x, y, r + 10);
-        g.fillStyle(0xc9693a).fillCircle(x, y, r);
-        g.fillStyle(0x7e3219).fillEllipse(x - r*0.2, y + r*0.2, r*0.5, r*0.3);
-        g.lineStyle(2, 0xfdba74, 0.7).strokeCircle(x, y, r);
-      }
-
-      function deepPlanet(g, x, y, r) {
-        g.fillStyle(0x8b5cf6, 0.2).fillCircle(x, y, r + 12);
-        g.fillStyle(0x31104a).fillCircle(x, y, r);
-        g.fillStyle(0x6a3cff, 0.6).fillCircle(x - r*0.2, y - r*0.2, r*0.5);
-        g.lineStyle(2, 0xa78bfa, 0.8).strokeCircle(x, y, r);
+      const WW = 1800, WH = 1200;
+      function background(s, d) {
+        const g = s.add.graphics().setDepth(0), r = new Phaser.Math.RandomDataGenerator([d]), b = (a, c) => r.between(a, c);
+        if (d === 'moon') {
+          g.fillStyle(0x8f9298).fillRect(0, 0, WW, WH);
+          for (let i = 0; i < 70; i++) g.fillStyle(r.pick([0x7d8086, 0x9fa2a8]), 0.35).fillEllipse(b(0, WW), b(0, WH), b(80, 260), b(60, 180));
+          for (let i = 0; i < 45; i++) { const x = b(0, WW), y = b(0, WH), R = b(25, 95);
+            g.fillStyle(0x6a6d73).fillCircle(x, y, R).fillStyle(0x7d8086).fillCircle(x + R * 0.12, y + R * 0.12, R * 0.82); g.lineStyle(3, 0xb2b5ba).strokeCircle(x, y, R); }
+          for (let i = 0; i < 160; i++) g.fillStyle(0x5f6268).fillCircle(b(0, WW), b(0, WH), b(2, 5));
+        } else if (d === 'mars') {
+          g.fillStyle(0xa4482a).fillRect(0, 0, WW, WH);
+          for (let i = 0; i < 60; i++) { const x = b(0, WW), y = b(0, WH), w = b(160, 380), h = b(26, 48);
+            g.fillStyle(0x7e3219, 0.45).fillEllipse(x + 10, y + 14, w, h).fillStyle(0xc9693a, 0.7).fillEllipse(x, y, w, h); }
+          for (let i = 0; i < 120; i++) g.fillStyle(0x5e2410).fillCircle(b(0, WW), b(0, WH), b(3, 9));
+        } else {
+          g.fillStyle(0x02030a).fillRect(0, 0, WW, WH);
+          [[0x6a3cff, 300, 300, 260], [0x2ec4ff, 1300, 800, 320], [0xff5ea8, 800, 1000, 220], [0x6a3cff, 1500, 200, 200]].forEach(n => g.fillStyle(n[0], 0.07).fillCircle(n[1], n[2], n[3]));
+          for (let i = 0; i < 450; i++) g.fillStyle(0xffffff, 0.3 + r.frac() * 0.7).fillRect(b(0, WW), b(0, WH), b(1, 2), b(1, 2));
+        }
       }
 
       class Boot extends Phaser.Scene {
@@ -147,9 +178,9 @@
           g.fillStyle(0xffc400).fillEllipse(21, 15, 8, 12);
           save('astro', 32, 30);
           g.fillStyle(0x7a3cff, 0.15).fillCircle(64, 64, 62).fillStyle(0xb06cff, 0.3).fillCircle(64, 64, 50);
-          g.fillStyle(0xffa040, 0.55).fillCircle(64, 64, 38); g.fillStyle(0x000000).fillCircle(64, 64, 28);
+          g.fillStyle(0xffa040, 0.55).fillCircle(64, 64, 38).fillStyle(0x000000).fillCircle(64, 64, 28);
           save('blackhole', 128, 128);
-          [['beacon', 0xffd166], ['beaconDone', 0x4cd964']].forEach(b => {
+          [['beacon', 0xffd166], ['beaconDone', 0x4cd964]].forEach(b => {
             g.fillStyle(b[1], 0.25).fillCircle(24, 24, 21); g.lineStyle(4, b[1]).strokeCircle(24, 24, 20); g.fillStyle(b[1]).fillCircle(24, 24, 5);
             if (b[0] === 'beaconDone') g.lineBetween(14, 24, 21, 31).lineBetween(21, 31, 35, 16);
             save(b[0], 48, 48);
@@ -167,50 +198,26 @@
           g.fillGradientStyle(0x030712, 0x030712, 0x0a1030, 0x0f172a, 1).fillRect(0, 0, W, H); 
           stars(g, 180, 0.8);
 
-          // Título principal
-          txt(this, 400, 35, 'CENTRO DE CONTROL ESPACIAL', 24, '#00f0ff', true).setOrigin(0.5).setShadow(0, 0, '#00f0ff', 12);
-          txt(this, 400, 58, 'NASA SPACE APPS CHALLENGE', 11, '#94a3b8', true).setOrigin(0.5);
+          g.lineStyle(1, 0x00f0ff, 0.15).strokeCircle(400, 225, 160);
+          g.lineStyle(1, 0x00f0ff, 0.08).strokeCircle(400, 225, 220);
 
-          // Contenedor principal de la Tierra inicial
-          this.earthGroup = this.add.container(400, 200);
-          const eg = this.add.graphics();
-          earth(eg, 0, 0, 70);
-          const titleEarth = txt(this, 0, 85, 'PLANETA TIERRA', 16, '#fff', true).setOrigin(0.5);
-          const subEarth = txt(this, 0, 107, 'Origen de la Exploración', 11, '#38bdf8', true).setOrigin(0.5);
-          this.earthGroup.add([eg, titleEarth, subEarth]);
+          const eg = this.add.graphics(); 
+          earth(eg, 400, 225, 68);
+          this.tweens.add({ targets: eg, y: -6, yoyo: true, repeat: -1, duration: 4000, ease: 'Sine.easeInOut' });
 
-          // Botón JUGAR inicial debajo de la Tierra
-          this.playBtnContainer = this.add.container(400, 345);
-          const playBg = this.add.rectangle(0, 0, 200, 48, 0x1d6b3a).setStrokeStyle(2, 0x7dff8a).setInteractive({ useHandCursor: true });
-          const playText = txt(this, 0, 0, 'INICIAR MISIÓN', 15, '#fff', true).setOrigin(0.5);
-          this.playBtnContainer.add([playBg, playText]);
+          txt(this, 400, 36, 'SELECCIÓN DE DESTINO', 26, '#00f0ff', true).setOrigin(0.5).setShadow(0, 0, '#00f0ff', 12);
+          txt(this, 400, 62, 'CENTRO DE CONTROL ESPACIAL - NASA', 12, '#94a3b8', true).setOrigin(0.5);
 
-          playBg.on('pointerover', () => { playBg.setFillStyle(0x238636); this.tweens.add({ targets: this.playBtnContainer, scale: 1.05, duration: 150 }); });
-          playBg.on('pointerout', () => { playBg.setFillStyle(0x1d6b3a); this.tweens.add({ targets: this.playBtnContainer, scale: 1, duration: 150 }); });
-          
-          // Al hacer clic en JUGAR: animación para bajar la tierra y revelar el sistema solar
-          playBg.on('pointerup', () => {
-            this.tweens.add({
-              targets: this.earthGroup,
-              y: -120,
-              alpha: 0,
-              duration: 600,
-              ease: 'Power2'
+          const go = d => () => {
+            this.cameras.main.fade(250, 3, 7, 18, false, (cam, progress) => {
+              if (progress === 1) this.scene.start('Play', { dest: d });
             });
-            this.tweens.add({
-              targets: this.playBtnContainer,
-              y: 500,
-              alpha: 0,
-              duration: 400,
-              onComplete: () => {
-                this.earthGroup.setVisible(false);
-                this.playBtnContainer.setVisible(false);
-                this.showSolarSystem();
-              }
-            });
-          });
+          };
 
-          // Barra inferior de telemetría global
+          menuButton(this, 175, 215, 'LA LUNA', 'Satélite Natural', '🌕', go('moon'));
+          menuButton(this, 625, 215, 'MARTE', 'Planeta Rojo', '🔴', go('mars'));
+          menuButton(this, 400, 370, 'ESPACIO PROFUNDO', 'Sondas Lejanas', '🌌', go('deep'));
+
           const barBg = this.add.rectangle(400, 426, 768, 32, 0x0b101d, 0.9).setStrokeStyle(1, 0x1e293b);
           txt(this, 35, 418, 'TELEMETRÍA GLOBAL:', 12, '#64748b', true);
           txt(this, 180, 418, 'Puntos: ' + SG.State.score, 14, '#ffd166', true);
@@ -223,94 +230,6 @@
           nb.on('pointerout', () => nb.setFillStyle(0x3f1d1d));
           nb.on('pointerup', () => { SG.State.reset(); this.scene.restart(); });
         }
-
-        // Sistema solar ampliado con planetas interactivos
-        showSolarSystem() {
-          const sysContainer = this.add.container(0, 0);
-          sysContainer.setAlpha(0);
-          this.tweens.add({ targets: sysContainer, alpha: 1, duration: 600 });
-
-          const titleSys = txt(this, 400, 30, 'SELECCIONA UN DESTINO ESPACIAL', 20, '#00f0ff', true).setOrigin(0.5);
-          sysContainer.add(titleSys);
-
-          const planets = [
-            { key: 'moon', name: 'LA LUNA', sub: 'Órbita Terrestre', x: 200, y: 200, draw: moonPlanet, r: 40 },
-            { key: 'mars', name: 'MARTE', sub: 'Planeta Rojo', x: 400, y: 200, draw: marsPlanet, r: 45 },
-            { key: 'deep', name: 'ESPACIO PROFUNDO', sub: 'Sondas Lejanas', x: 600, y: 200, draw: deepPlanet, r: 42 }
-          ];
-
-          planets.forEach(p => {
-            const pGroup = this.add.container(p.x, p.y);
-            const pGraphics = this.add.graphics();
-            p.draw(pGraphics, 0, 0, p.r);
-            
-            const pText = txt(this, 0, p.r + 18, p.name, 14, '#fff', true).setOrigin(0.5);
-            const pSubText = txt(this, 0, p.r + 34, p.sub, 10, '#94a3b8').setOrigin(0.5);
-            
-            pGroup.add([pGraphics, pText, pSubText]);
-            sysContainer.add(pGroup);
-
-            // Hacer interactivo el planeta
-            const hitZone = this.add.zone(0, 0, p.r * 2.5, p.r * 2.5).setInteractive({ useHandCursor: true });
-            pGroup.add(hitZone);
-
-            // Efecto de crecimiento al pasar el mouse por encima
-            hitZone.on('pointerover', () => {
-              this.tweens.add({ targets: pGroup, scale: 1.25, duration: 200, ease: 'Back.easeOut' });
-              pText.setColor('#7dff8a');
-            });
-            hitZone.on('pointerout', () => {
-              this.tweens.add({ targets: pGroup, scale: 1, duration: 200, ease: 'Power1' });
-              pText.setColor('#fff');
-            });
-
-            // Al hacer clic, se abre el panel de características y opciones
-            hitZone.on('pointerup', () => {
-              this.showPlanetDetails(p.key, sysContainer);
-            });
-          });
-        }
-
-        // Panel lateral/emergente con características y botón de empezar misión
-        showPlanetDetails(destKey, sysContainer) {
-          const destData = SG.DEST[destKey];
-
-          // Animación de desplazamiento de los elementos a los lados / atenuación
-          this.tweens.add({ targets: sysContainer, x: -100, alpha: 0.2, duration: 300 });
-
-          const detailsGroup = this.add.container(800, 0);
-          this.tweens.add({ targets: detailsGroup, x: 0, duration: 400, ease: 'Power2' });
-
-          // Fondo del panel de detalles
-          const bgPanel = this.add.rectangle(400, 225, 650, 340, 0x080e1a, 0.95).setStrokeStyle(2, 0x00f0ff);
-          
-          const title = txt(this, 400, 85, destData.name, 22, '#00f0ff', true).setOrigin(0.5);
-          const desc = txt(this, 400, 140, destData.desc, 14, '#e2e8f0').setOrigin(0.5).setAlign('center').setWordWrapWidth(580);
-          const misCount = txt(this, 400, 210, 'Misiones disponibles en esta zona: ' + destData.missions.length, 14, '#ffd166', true).setOrigin(0.5);
-
-          // Botón de Volver al Sistema Solar
-          const backBg = this.add.rectangle(270, 310, 160, 42, 0x334155).setStrokeStyle(1, 0x94a3b8).setInteractive({ useHandCursor: true });
-          const backTxt = txt(this, 270, 310, '← Regresar', 14, '#fff', true).setOrigin(0.5);
-          backBg.on('pointerover', () => backBg.setFillStyle(0x475569));
-          backBg.on('pointerout', () => backBg.setFillStyle(0x334155));
-          backBg.on('pointerup', () => {
-            this.tweens.add({ targets: detailsGroup, x: 800, duration: 300, onComplete: () => detailsGroup.destroy() });
-            this.tweens.add({ targets: sysContainer, x: 0, alpha: 1, duration: 300 });
-          });
-
-          // Botón de EMPEZAR MISIÓN
-          const startBg = this.add.rectangle(530, 310, 190, 42, 0x1d6b3a).setStrokeStyle(2, 0x7dff8a).setInteractive({ useHandCursor: true });
-          const startTxt = txt(this, 530, 310, '▶ EMPEZAR MISIÓN', 14, '#fff', true).setOrigin(0.5);
-          startBg.on('pointerover', () => startBg.setFillStyle(0x238636));
-          startBg.on('pointerout', () => startBg.setFillStyle(0x1d6b3a));
-          startBg.on('pointerup', () => {
-            this.cameras.main.fade(250, 3, 7, 18, false, (cam, progress) => {
-              if (progress === 1) this.scene.start('Play', { dest: destKey });
-            });
-          });
-
-          detailsGroup.add([bgPanel, title, desc, misCount, backBg, backTxt, startBg, startTxt]);
-        }
       }
 
       class Play extends Phaser.Scene {
@@ -321,15 +240,6 @@
           this.cfg = SG.DEST[this.dest];
           background(this, this.dest);
           this.keys = this.input.keyboard.createCursorKeys();
-          
-          // Soporte completo para teclas WASD y flechas
-          this.wasd = this.input.keyboard.addKeys({
-            up: Phaser.Input.Keyboard.KeyCodes.W,
-            down: Phaser.Input.Keyboard.KeyCodes.S,
-            left: Phaser.Input.Keyboard.KeyCodes.A,
-            right: Phaser.Input.Keyboard.KeyCodes.D
-          });
-
           this.space = this.input.keyboard.addKey('SPACE');
           this.cfg.missions.forEach(m => {
             const done = SG.State.isDone(m.id), s = this.add.image(m.x, m.y, done ? 'beaconDone' : 'beacon').setDepth(8);
@@ -401,11 +311,11 @@
             onComplete: () => { this.destroyBlackHole(); this.scene.start('Play', { dest: 'moon', caught: true }); } });
         }
         update(time, delta) {
-          const s = delta / 1000, K = this.keys, W = this.wasd, C = SG.Controls, p = this.player, D = Phaser.Math.Distance.Between;
+          const s = delta / 1000, K = this.keys, C = SG.Controls, p = this.player, D = Phaser.Math.Distance.Between;
           const scanKey = Phaser.Input.Keyboard.JustDown(this.space) || C.scan; C.scan = false;
           if (!this.caught) {
-            const dx = (K.left.isDown || W.left.isDown || C.left ? -1 : 0) + (K.right.isDown || W.right.isDown || C.right ? 1 : 0);
-            const dy = (K.up.isDown || W.up.isDown || C.up ? -1 : 0) + (K.down.isDown || W.down.isDown || C.down ? 1 : 0);
+            const dx = (K.left.isDown || C.left ? -1 : 0) + (K.right.isDown || C.right ? 1 : 0);
+            const dy = (K.up.isDown || C.up ? -1 : 0) + (K.down.isDown || C.down ? 1 : 0);
             if (dx || dy) {
               const l = Math.hypot(dx, dy);
               p.x = Phaser.Math.Clamp(p.x + dx / l * 200 * s, 30, WW - 30); p.y = Phaser.Math.Clamp(p.y + dy / l * 200 * s, 30, WH - 30);

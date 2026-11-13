@@ -173,24 +173,14 @@ body {
   border-radius: var(--border-radius);
   padding: 1rem;
   width: 100%;
-  max-width: 100%; /* Elimina el límite de ancho para que crezca */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 1rem;
-}
-
-/* Hace que el lienzo (canvas) de Phaser se expanda al 100% */
-#phaser-game {
-  width: 100% !important;
-  height: auto !important;
+  max-width: 850px;
+  margin: 1rem auto;
 }
 
 #phaser-game canvas {
-  width: 100% !important;
-  height: auto !important;
-  max-height: 650px; /* Controla la altura máxima para que no se deforme */
-  object-fit: contain;
+  display: block;
+  margin: 0 auto;
+  border-radius: 8px;
 }
 
 /* ADAPTABILIDAD A MÓVILES (RESPONSIVE) */

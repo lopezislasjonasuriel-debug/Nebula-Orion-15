@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Abandoned but not Forgotten - NASA Space Apps</title>
+  <link rel="stylesheet" href="styles.css">
+  <!-- Carga de la librería Phaser 3 desde CDN para el juego -->
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
+</head>
+<body>
+
+  <!-- ENCABEZADO Y NAVEGACIÓN -->
+  <header class="main-header">
+    <div class="header-container">
+      <h1 class="logo">🚀 Misiones Olvidadas</h1>
+      <nav class="nav-menu">
+        <button class="nav-btn active" onclick="showSection('inicio')">🏠 Inicio</button>
+        <button class="nav-btn" onclick="showSection('cuento')">📖 El Cuento</button>
+        <button class="nav-btn" onclick="showSection('juego')">🎮 El Juego</button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <main class="content-container">
+
+    <!-- SECCIÓN 1: INICIO -->
+    <section id="inicio" class="content-section active-section">
+      <div class="card">
+        <h2>Abandoned but not Forgotten</h2>
+        <p class="subtitle">Explorando el equipo de la NASA que quedó en la Luna y Marte desde los años 60.</p>
+        <div class="hero-image-placeholder">
+          <span>🌌 🤖 🚀</span>
+        </div>
+        <p>
+          Desde las primeras misiones espaciales, los seres humanos hemos enviado rovers, sondas e instrumentos
+          a través del sistema solar. Aunque muchas de estas herramientas ya completaron sus misiones científicas,
+          ¡siguen ahí afuera formando parte de la historia de la exploración espacial!
+        </p>
+        <p>
+          Explora nuestra historia interactiva para conocer sus aventuras o juega nuestro juego para ponerte en los mandos
+          de una misión espacial.
+        </p>
+      </div>
+    </section>
+
+    <!-- SECCIÓN 2: EL CUENTO -->
+    <section id="cuento" class="content-section">
+      <div class="card">
+        <h2>📖 La Aventura del Rover Solitario</h2>
+        
+        <div id="story-container" class="story-box">
+          <p class="story-placeholder">
+            Cargando la historia... Aquí se mostrará el cuento interactivo con las decisiones y la narrativa.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECCIÓN 3: EL JUEGO -->
+    <section id="juego" class="content-section">
+      <div class="card">
+        <h2>🎮 Misión de Rescate Espacial</h2>
+        <p>Utiliza las flechas del teclado o los controles en pantalla para juntar las muestras del planeta.</p>
+        
+        <div id="game-container" class="game-box">
+          <div id="phaser-game"></div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- PIE DE PÁGINA / CRÉDITOS -->
+  <footer class="main-footer">
+    <p>Proyecto desarrollado para el <strong>NASA Space Apps Challenge</strong> 🚀</p>
+    <p>Creado por el equipo: <span>Tu Nombre / Nombre de tu Equipo</span></p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

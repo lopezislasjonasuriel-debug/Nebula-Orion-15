@@ -5,8 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Abandoned but not Forgotten - NASA Space Apps</title>
   <link rel="stylesheet" href="styles.css">
-  <!-- Carga de la librería Phaser 3 desde CDN para el juego -->
-  <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.80.1/phaser.min.js"></script>
 </head>
 <body>
@@ -16,9 +14,9 @@
     <div class="header-container">
       <h1 class="logo">🚀 Misiones Olvidadas</h1>
       <nav class="nav-menu">
-        <button class="nav-btn active" onclick="showSection('inicio')">🏠 Inicio</button>
-        <button class="nav-btn" onclick="showSection('cuento')">📖 El Cuento</button>
-        <button class="nav-btn" onclick="showSection('juego')">🎮 El Juego</button>
+        <button class="nav-btn active" onclick="showSection('inicio', this)">🏠 Inicio</button>
+        <button class="nav-btn" onclick="showSection('cuento', this)">📖 El Cuento</button>
+        <button class="nav-btn" onclick="showSection('juego', this)">🎮 El Juego</button>
       </nav>
     </div>
   </header>
@@ -50,7 +48,6 @@
     <section id="cuento" class="content-section">
       <div class="card">
         <h2>📖 La Aventura del Rover Solitario</h2>
-        
         <div id="story-container" class="story-box">
           <p class="story-placeholder">
             Cargando la historia... Aquí se mostrará el cuento interactivo con las decisiones y la narrativa.
@@ -63,21 +60,16 @@
     <section id="juego" class="content-section">
       <div class="card">
         <h2>🎮 Misión de Rescate Espacial</h2>
-        <p>Utiliza las flechas del teclado o los controles en pantalla para juntar las muestras del planeta.</p>
-        
-        <!-- Contenedor estático, solo está ahí fijo -->
+        <p>Utiliza las flechas del teclado, WASD o los controles en pantalla para escanear las misiones.</p>
         <div id="game-container" class="game-box">
-          <div id="phaser-game">
-            <!-- Puedes poner aquí una imagen estática o un texto de marcador de posición si gustas -->
-            <span style="color: #8b949e; font-style: italic;">🎮 Espacio reservado para el juego (estático)</span>
-          </div>
+          <div id="phaser-game"></div>
         </div>
       </div>
     </section>
 
   </main>
 
-  <!-- PIE DE PÁGINA / CRÉDITOS -->
+  <!-- PIE DE PÁGINA -->
   <footer class="main-footer">
     <p>Proyecto desarrollado para el <strong>NASA Space Apps Challenge</strong> 🚀</p>
     <p>Creado por el equipo: <span>Tu Nombre / Nombre de tu Equipo</span></p>

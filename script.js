@@ -1,27 +1,25 @@
-// NAVEGACIÓN ENTRE SECCIONES (INICIO / CUENTO / JUEGO)
-function showSection(sectionId) {
+// ==========================================
+// 1. NAVEGACIÓN ENTRE SECCIONES
+// ==========================================
+function showSection(sectionId, btnElement) {
   const sections = document.querySelectorAll('.content-section');
-  sections.forEach(section => {
-    section.classList.remove('active-section');
-  });
+  sections.forEach(section => section.classList.remove('active-section'));
 
   const buttons = document.querySelectorAll('.nav-btn');
-  buttons.forEach(button => {
-    button.classList.remove('active');
-  });
+  buttons.forEach(button => button.classList.remove('active'));
 
   const activeSection = document.getElementById(sectionId);
   if (activeSection) {
     activeSection.classList.add('active-section');
   }
 
-  if (event && event.currentTarget) {
-    event.currentTarget.classList.add('active');
+  if (btnElement) {
+    btnElement.classList.add('active');
   }
 }
 
 // ==========================================
-// 2. CÓDIGO DEL JUEGO CON PHASER
+// 2. JUEGO PHASER - ROVER NASA
 // ==========================================
 (function () {
   'use strict';
@@ -390,4 +388,18 @@ function showSection(sectionId) {
       capa.on('pointerdown', () => this.scene.restart());
     }
   }
+
+  new Phaser.Game({
+    type: Phaser.AUTO,
+    parent: 'phaser-game',
+    width: ANCHO,
+    height: ALTO,
+    backgroundColor: '#05070f',
+    physics: { default: 'arcade', arcade: { debug: false } },
+    scale: {
+      mode: Phaser.Scale.NONE
+    },
+    input: { activePointers: 4 },
+    scene: [EscenaJuego]
+  });
 })();

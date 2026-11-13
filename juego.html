@@ -35,9 +35,17 @@
           <button type="button" data-dir="down">▼</button>
           <button type="button" data-dir="right">▶</button>
         </div>
-        <button id="sg-scan" type="button">Escanear</button>
+        <button id="sg-scan" type="button">ESCANEAR</button>
+        <div id="sg-pause" role="dialog" aria-label="Menú de pausa">
+          <div class="sg-pause-box">
+            <h3>PAUSA</h3>
+            <button type="button" data-act="resume">▶ Continuar</button>
+            <button type="button" data-act="restart" class="warn">↻ Reiniciar</button>
+            <button type="button" data-act="menu">🏠 Volver al menú</button>
+          </div>
+        </div>
       </div>
-      <p style="text-align:center; font-size:13px; color:#9ca3af; margin-top:10px;">Haz clic en el juego. Flechas para moverte, ESPACIO para escanear.</p>
+      <p style="text-align:center; font-size:13px; color:#9ca3af; margin-top:10px;">Haz clic en el juego. Flechas o WASD para moverte, ESPACIO para escanear.</p>
     </div>
   </main>
 
@@ -56,7 +64,8 @@
         reset() { this.score = 0; this.done = {}; },
         isDone(id) { return !!this.done[id]; },
         complete(id, pts) { if (this.done[id]) return false; this.done[id] = true; this.score += pts; return true; },
-        penalize(n) { this.score = Math.max(0, this.score - n); }
+        penalize(n) { this.score = Math.max(0, this.score - n); },
+        resetDest(cfg) { [].concat(cfg.missions, cfg.extras || []).forEach(m => { if (this.done[m.id]) { delete this.done[m.id]; this.score = Math.max(0, this.score - m.pts); } }); }
       };
       SG.Controls = { left: false, right: false, up: false, down: false, scan: false };
       
@@ -91,8 +100,23 @@
       'use strict';
       const W = 800, H = 450, FONT = 'Arial, sans-serif';
       const txt = (s, x, y, t, sz, col, bold) => s.add.text(x, y, t, { fontFamily: FONT, fontSize: sz + 'px', color: col || '#fff', fontStyle: bold ? 'bold' : 'normal' });
-      const setUI = on => document.getElementById('sg-root').classList.toggle('in-game', on);
+      const setUI = on => { const r = document.getElementById('sg-root'); r.classList.toggle('in-game', on); if (!on) r.classList.remove('paused'); };
       const rnd = Phaser.Math.Between;
+
+      // Transición: cortina negra que baja desde arriba y cubre la pantalla...
+      SG.wipeTo = function (s, key, data, before) {
+        if (s._wiping) return;
+        s._wiping = true;
+        const r = s.add.rectangle(W / 2, -H / 2, W, H, 0x000000).setScrollFactor(0).setDepth(1000);
+        s.tweens.add({ targets: r, y: H / 2, duration: 450, ease: 'Sine.easeInOut',
+          onComplete: () => { if (before) before(); s.scene.start(key, data); } });
+      };
+      // ...y en la escena nueva la cortina sigue bajando hasta salir de la pantalla.
+      function wipeIn(s) {
+        s._wiping = false;
+        const r = s.add.rectangle(W / 2, H / 2, W, H, 0x000000).setScrollFactor(0).setDepth(1000);
+        s.tweens.add({ targets: r, y: H * 1.5, duration: 450, ease: 'Sine.easeInOut', onComplete: () => r.destroy() });
+      }
 
       function stars(g, n, a) {
         for (let i = 0; i < n; i++) { g.fillStyle(0xffffff, a * (0.4 + Math.random() * 0.6)); g.fillRect(rnd(0, W), rnd(0, H), rnd(1, 2), rnd(1, 2)); }
@@ -208,11 +232,7 @@
           txt(this, 400, 36, 'SELECCIÓN DE DESTINO', 26, '#00f0ff', true).setOrigin(0.5).setShadow(0, 0, '#00f0ff', 12);
           txt(this, 400, 62, 'CENTRO DE CONTROL ESPACIAL - NASA', 12, '#94a3b8', true).setOrigin(0.5);
 
-          const go = d => () => {
-            this.cameras.main.fade(250, 3, 7, 18, false, (cam, progress) => {
-              if (progress === 1) this.scene.start('Play', { dest: d });
-            });
-          };
+          const go = d => () => SG.wipeTo(this, 'Play', { dest: d });
 
           menuButton(this, 175, 215, 'LA LUNA', 'Satélite Natural', '🌕', go('moon'));
           menuButton(this, 625, 215, 'MARTE', 'Planeta Rojo', '🔴', go('mars'));
@@ -229,6 +249,7 @@
           nb.on('pointerover', () => nb.setFillStyle(0x7f1d1d));
           nb.on('pointerout', () => nb.setFillStyle(0x3f1d1d));
           nb.on('pointerup', () => { SG.State.reset(); this.scene.restart(); });
+          wipeIn(this);
         }
       }
 
@@ -237,9 +258,11 @@
         init(d) { this.dest = d.dest; this.caughtNote = !!d.caught; this.caught = false; this.blackHole = null; this.bhTweens = []; this.bhTimer = null; this.bhSpeed = 28; this.targets = []; this.panelTimer = null; }
         create() {
           setUI(true);
+          wipeIn(this);
           this.cfg = SG.DEST[this.dest];
           background(this, this.dest);
           this.keys = this.input.keyboard.createCursorKeys();
+          this.wasd = this.input.keyboard.addKeys({ up: 'W', left: 'A', down: 'S', right: 'D' });
           this.space = this.input.keyboard.addKey('SPACE');
           this.cfg.missions.forEach(m => {
             const done = SG.State.isDone(m.id), s = this.add.image(m.x, m.y, done ? 'beaconDone' : 'beacon').setDepth(8);
@@ -308,14 +331,15 @@
           this.caught = true;
           SG.State.penalize(SG.PENALTY);
           this.tweens.add({ targets: this.player, x: this.blackHole.x, y: this.blackHole.y, scale: 0, angle: 360, duration: 800,
-            onComplete: () => { this.destroyBlackHole(); this.scene.start('Play', { dest: 'moon', caught: true }); } });
+            onComplete: () => { this.destroyBlackHole(); SG.wipeTo(this, 'Play', { dest: 'moon', caught: true }); } });
         }
         update(time, delta) {
           const s = delta / 1000, K = this.keys, C = SG.Controls, p = this.player, D = Phaser.Math.Distance.Between;
           const scanKey = Phaser.Input.Keyboard.JustDown(this.space) || C.scan; C.scan = false;
           if (!this.caught) {
-            const dx = (K.left.isDown || C.left ? -1 : 0) + (K.right.isDown || C.right ? 1 : 0);
-            const dy = (K.up.isDown || C.up ? -1 : 0) + (K.down.isDown || C.down ? 1 : 0);
+            const Wk = this.wasd;
+            const dx = (K.left.isDown || Wk.left.isDown || C.left ? -1 : 0) + (K.right.isDown || Wk.right.isDown || C.right ? 1 : 0);
+            const dy = (K.up.isDown || Wk.up.isDown || C.up ? -1 : 0) + (K.down.isDown || Wk.down.isDown || C.down ? 1 : 0);
             if (dx || dy) {
               const l = Math.hypot(dx, dy);
               p.x = Phaser.Math.Clamp(p.x + dx / l * 200 * s, 30, WW - 30); p.y = Phaser.Math.Clamp(p.y + dy / l * 200 * s, 30, WH - 30);
@@ -357,18 +381,47 @@
       root.addEventListener('pointerdown', () => root.focus({ preventScroll: true }));
 
       root.querySelectorAll('[data-dir]').forEach(b => {
-        const dir = b.dataset.dir, set = v => e => { e.preventDefault(); SG.Controls[dir] = v; };
+        const dir = b.dataset.dir, set = v => e => { e.preventDefault(); SG.Controls[dir] = v; b.classList.toggle('on', v); };
         b.addEventListener('pointerdown', set(true));
         ['pointerup', 'pointerleave', 'pointercancel'].forEach(ev => b.addEventListener(ev, set(false)));
         b.addEventListener('contextmenu', e => e.preventDefault());
       });
 
       const sc = document.getElementById('sg-scan');
-      if (sc) sc.addEventListener('pointerdown', e => { e.preventDefault(); SG.Controls.scan = true; });
+      if (sc) {
+        sc.addEventListener('pointerdown', e => { e.preventDefault(); SG.Controls.scan = true; sc.classList.add('on'); });
+        ['pointerup', 'pointerleave', 'pointercancel'].forEach(ev => sc.addEventListener(ev, () => sc.classList.remove('on')));
+      }
 
-      document.getElementById('sg-menu').addEventListener('click', () => {
+      // ----- Menú de pausa -----
+      const playScene = () => game.scene.getScene('Play');
+      const refocus = () => root.focus({ preventScroll: true });
+      function openPause() {
+        const s = playScene();
+        if (!s || !game.scene.isActive('Play') || s._wiping) return;
         Object.keys(SG.Controls).forEach(k => (SG.Controls[k] = false));
-        game.scene.getScenes(true).forEach(s => s.scene.start('Menu'));
+        root.querySelectorAll('.on').forEach(b => b.classList.remove('on'));
+        game.scene.pause('Play');
+        root.classList.add('paused');
+      }
+      function closePause() {
+        root.classList.remove('paused');
+        game.scene.resume('Play');
+        refocus();
+      }
+      const togglePause = () => (root.classList.contains('paused') ? closePause() : openPause());
+
+      document.getElementById('sg-menu').addEventListener('click', e => { e.currentTarget.blur(); togglePause(); });
+      root.addEventListener('keydown', e => {
+        if (e.key === 'Escape' && root.classList.contains('in-game')) { e.preventDefault(); togglePause(); }
+      });
+      document.getElementById('sg-pause').addEventListener('click', e => {
+        const act = e.target.closest('[data-act]');
+        if (!act) return;
+        const s = playScene();
+        closePause();
+        if (act.dataset.act === 'restart') SG.wipeTo(s, 'Play', { dest: s.dest }, () => SG.State.resetDest(s.cfg));
+        else if (act.dataset.act === 'menu') SG.wipeTo(s, 'Menu');
       });
     })(window.SpaceGame);
   </script>

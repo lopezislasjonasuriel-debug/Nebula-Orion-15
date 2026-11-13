@@ -1,26 +1,20 @@
-// ==========================================
-// 1. NAVEGACIÓN ENTRE SECCIONES (INICIO / CUENTO / JUEGO)
-// ==========================================
+// NAVEGACIÓN ENTRE SECCIONES (INICIO / CUENTO / JUEGO)
 function showSection(sectionId) {
-  // Ocultar todas las secciones
   const sections = document.querySelectorAll('.content-section');
   sections.forEach(section => {
     section.classList.remove('active-section');
   });
 
-  // Desactivar estilo en todos los botones de navegación
   const buttons = document.querySelectorAll('.nav-btn');
   buttons.forEach(button => {
     button.classList.remove('active');
   });
 
-  // Mostrar la sección seleccionada
   const activeSection = document.getElementById(sectionId);
   if (activeSection) {
     activeSection.classList.add('active-section');
   }
 
-  // Activar el botón correspondiente
   if (event && event.currentTarget) {
     event.currentTarget.classList.add('active');
   }
@@ -396,21 +390,4 @@ function showSection(sectionId) {
       capa.on('pointerdown', () => this.scene.restart());
     }
   }
-
-  // Inicialización del juego en el contenedor #phaser-game
-  // Inicialización del juego con tamaño fijo grande para carga instantánea
-  new Phaser.Game({
-    type: Phaser.AUTO,
-    parent: 'phaser-game',
-    width: 800,
-    height: 550, // Aumenta un poco la altura base
-    backgroundColor: '#05070f',
-    physics: { default: 'arcade', arcade: { debug: false } },
-    scale: {
-      mode: Phaser.Scale.NONE, // Evita los recálculos lentos
-      autoCenter: Phaser.Scale.CENTER_BOTH
-    },
-    input: { activePointers: 4 },
-    scene: [EscenaJuego]
-  });
 })();

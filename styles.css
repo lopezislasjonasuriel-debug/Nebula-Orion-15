@@ -24,7 +24,7 @@ body {
   min-height: 100vh;
 }
 
-/* ENCABEZADO Y NAVEGACIÓN */
+/* ENCABEZADO Y MENÚ DE ENLACES */
 .main-header {
   background-color: #161b22d9;
   backdrop-filter: blur(8px);
@@ -48,6 +48,8 @@ body {
 .logo {
   font-size: 1.4rem;
   color: var(--accent-color);
+  text-decoration: none;
+  font-weight: bold;
 }
 
 .nav-menu {
@@ -63,7 +65,8 @@ body {
   font-size: 1rem;
   font-weight: bold;
   border-radius: 20px;
-  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
 }
 
 .nav-btn:hover {
@@ -83,14 +86,6 @@ body {
   width: 95%;
   margin: 2rem auto;
   flex: 1;
-}
-
-.content-section {
-  display: none;
-}
-
-.content-section.active-section {
-  display: block;
 }
 
 .card {
@@ -129,25 +124,40 @@ body {
   font-size: 1.05rem;
 }
 
-/* CUENTO Y JUEGO */
+/* CONTENEDOR DEL CUENTO */
 .story-box {
   background-color: #0d1117;
   border: 2px dashed #30363d;
   border-radius: var(--border-radius);
-  padding: 1.5rem;
-  min-height: 350px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  padding: 2rem;
+  min-height: 300px;
   margin-top: 1rem;
 }
 
-.story-placeholder {
-  color: var(--text-secondary);
-  font-style: italic;
-  text-align: center;
+.story-controls {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  flex-wrap: wrap;
 }
 
+.choice-btn {
+  background-color: #21262d;
+  color: var(--accent-color);
+  border: 1px solid var(--accent-color);
+  padding: 0.7rem 1.2rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: bold;
+}
+
+.choice-btn:hover {
+  background-color: var(--accent-color);
+  color: #0d1117;
+}
+
+/* CONTENEDOR DEL JUEGO */
 .game-box {
   background-color: #05070f;
   border: 2px solid #30363d;
@@ -193,12 +203,10 @@ body {
     flex-direction: column;
     text-align: center;
   }
-
   .nav-menu {
     width: 100%;
     justify-content: center;
   }
-
   .card {
     padding: 1.2rem;
   }
